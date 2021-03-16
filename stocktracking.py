@@ -10,6 +10,7 @@ import psutil
 import selenium
 from selenium import webdriver
 import sys
+import pyautogui
 
 def startChrome():
       for p in psutil.process_iter():
@@ -82,7 +83,7 @@ def list_postal_codes(path_to_source_pc , pkl_file_name):
 list_product_info = [ ]
 
 
-def enter_fields(upc , loc , is_iter_one , num=2):
+def enter_fields(upc , loc , is_iter_one , num=1):
       field_dict = {'q': upc , 'loc': loc , 'num': num}
       form_control = driver.find_elements_by_class_name('dhxform_control')
       for classes in form_control:
@@ -93,10 +94,10 @@ def enter_fields(upc , loc , is_iter_one , num=2):
                               field_id = input_field.get_attribute('id')
                               driver.find_element_by_id(field_id).clear()
                               driver.find_element_by_id(field_id).send_keys(field_dict[ field_key ])
-                              # if field_key == 'loc':
-                              #           time.sleep(1)
-                              #           pyautogui.hotkey('down')
-                              #           pyautogui.hotkey('return')
+                              if field_key == 'loc':
+                                        time.sleep(1)
+                                        pyautogui.hotkey('down')
+                                        pyautogui.hotkey('right')
       time.sleep(0.75)
       driver.find_element_by_css_selector('#layoutObj > div > div:nth-child(1) > div.dhx_cell_cont_layout.dhx_cell_cont_no_borders > div > div > div:nth-child(1) > div.dhx_cell_cont_layout > div > div > div:nth-child(8) > div').click()
       time.sleep(0.75)
@@ -172,7 +173,7 @@ def full_scrape(upc , openfile):
                   enter_fields(str(upc) , postal_codes , num)
                   print('--------------------------------')
             except selenium.common.exceptions.ElementClickInterceptedException:
-                  break
+                  pass
       sort_name_stock_dict = {k: v for k , v in sorted(stock_dict.items() , key=lambda item: item[ 1 ][ 0 ])}
       sort_price_stock_dict = {k: v for k , v in sorted(stock_dict.items() , key=lambda item: item[ 1 ][ -2 ])}
       file_name = str(upc) + '_' + str(datetime.datetime.today()) + '.txt'
@@ -203,15 +204,17 @@ def full_scrape(upc , openfile):
 
 # list_postal_codes('/Users/olivia/Downloads/Postal Codes 100 km Vaughan.csv', 'vaughan_area_codes')
 
+# def start_scrape():
 start_time = time.time()
-# driver = startChrome()
-driver = startChromeheadless()
+driver = startChrome()
+# driver = startChromeheadless()
 driver.get('https://stocktrack.ca/')
 driver.switch_to.frame(driver.find_element_by_xpath('/html/body/div[1]/div/div/div[2]/div/iframe'))
 time.sleep(2)
-print(sys.argv[1])
-full_scrape(sys.argv[1], '/Users/olivia/PycharmProjects/vaughan_area_codes')
+# print(sys.argv[1])
+full_scrape(sys.argv[1], 'postal_codes')
 print("--- %s seconds ---" % (time.time() - start_time))
 
-# for key , data in stock_dict.items():
-#           print('{} - {}'.format(key , data))
+#
+# if __name__ == "__main__":
+#     main()
